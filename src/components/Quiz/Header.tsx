@@ -1,11 +1,9 @@
 "use client";
 
-import React, {useState} from "react";
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Card, CardBody, Image, Link} from "@nextui-org/react";
+import {Modal, ModalContent, ModalHeader, ModalFooter, Button, useDisclosure, Card, CardBody, Image, Link} from "@nextui-org/react";
 import {getIcon} from "@/lib/iconUtils";
 import AnimatedCircularProgressBar from "@/components/ui/animated-circular-progress-bar";
 import {useRouter} from "next/navigation";
-import {Question} from "@/app/test/[name]/text";
 
 export const Header = ({
     pathname,
@@ -18,7 +16,6 @@ export const Header = ({
     totalSolved: number;
     endQuiz: () => void;
 }) => {
-    const [showData, setShowData] = useState<boolean>(false);
     const router = useRouter();
     const {isOpen, onOpen, onClose} = useDisclosure();
 

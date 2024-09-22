@@ -2,7 +2,6 @@ import {ReactNode, useState} from "react";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import {Button} from "@nextui-org/react";
 import Image from "next/image";
 import {IconArrowRight} from "@tabler/icons-react";
 
