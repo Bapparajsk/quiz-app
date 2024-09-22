@@ -3,8 +3,11 @@
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import { FlipWords } from "@/components/ui/text-animations";
 import {ArticleList} from "@/components/home/ArticleList";
+import {useState} from "react";
 function Page() {
 
+    const [type, setType] = useState<string | undefined>(undefined);
+    const [tempStorage, setTempStorage] = useState<string | undefined>(undefined);
     const placeholders = [
         "What's the first rule of Fight Club?",
         "Who is Tyler Durden?",
@@ -15,11 +18,12 @@ function Page() {
     const words = ["Java", "Python", "TypeScript", "Next.js"];
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.target.value);
+        setType(e.target.value);
     };
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("submitted");
+        setType(tempStorage);
+        setTempStorage(undefined);
     };
 
     return (
@@ -35,7 +39,7 @@ function Page() {
                    <FlipWords words={words} duration={1500}/> <br/>
                </div>
                <article className={"w-full h-full max-w-[1200px]"}>
-                   <ArticleList/>
+                   <ArticleList type={type}/>
                </article>
            </div>
        </main>

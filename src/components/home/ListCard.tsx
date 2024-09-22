@@ -5,7 +5,7 @@ import { HoverEffect } from '@/components/ui/card-hover-effect';
 import {getIcon} from "@/lib/iconUtils";
 import {useTheme} from "@/context/ThemeContext";
 
-const ListCard = ({data} : {data: [{id: string, name: string}]}) => {
+const ListCard = ({data} : {data: {id: string, name: string}[]}) => {
     const [cardData, setCardData] = useState<{title : string, link: string, image: string}[] | undefined>(undefined);
     const {theme} = useTheme();
 

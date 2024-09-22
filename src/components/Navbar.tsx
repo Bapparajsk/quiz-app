@@ -66,17 +66,17 @@ export default function AppNav() {
                     </Link>
                 </NavbarItem>
                 <NavbarItem isActive={isActive.development}>
-                    <Link color={isActive.development ? "primary" : "foreground"} href="/development">
+                    <Link color={isActive.development ? "primary" : "foreground"} href="#">
                         Development
                     </Link>
                 </NavbarItem>
                 <NavbarItem isActive={isActive.programming}>
-                    <Link color={isActive.programming ? "primary" : "foreground"} href="/programming">
+                    <Link color={isActive.programming ? "primary" : "foreground"} href="#">
                         Programming
                     </Link>
                 </NavbarItem>
                 <NavbarItem  isActive={isActive.technology}>
-                    <Link color={isActive.technology ? "primary" : "foreground"} href="/technology">
+                    <Link color={isActive.technology ? "primary" : "foreground"} href="#">
                         Technology
                     </Link>
                 </NavbarItem>
