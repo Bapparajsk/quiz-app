@@ -18,54 +18,16 @@ import {
     useDisclosure,
     Chip
 } from "@nextui-org/react";
+import {Question} from "@/app/test/[name]/text";
 
-interface QuestionTag {
-    name: string;
-}
-
-interface CorrectAnswers {
-    answer_a_correct: string; // "true" or "false"
-    answer_b_correct: string;
-    answer_c_correct: string;
-    answer_d_correct: string;
-    answer_e_correct: string;
-    answer_f_correct: string;
-}
-
-interface Answers {
-    answer_a: string | null;
-    answer_b: string | null;
-    answer_c: string | null;
-    answer_d: string | null;
-    answer_e: string | null;
-    answer_f: string | null;
-    [key: string]: string | null; // Index signature to allow string indexing
-}
-
-interface Question {
-    id: number;
-    question: string;
-    description: string | null;
-    answers: Answers;
-    multiple_correct_answers: string; // "true" or "false"
-    correct_answers: CorrectAnswers;
-    correct_answer: string;
-    explanation: string | null;
-    tip: string | null;
-    tags: QuestionTag[];
-    category: string;
-    difficulty: string;
-    idx: number;
-    bgColor: "default" | "completed" | "wrong" | "correct";
-    isMarked?: number;
-    yourAnswer?: string;
-}
 
 function Page() {
     const [quiz, setQuiz] = useState<Question[]>([]);
     const [currentQuiz, setCurrentQuiz] = useState<Question | undefined>(undefined);
     const [isDot, setIsDot] = useState<number | undefined>(undefined);
     const [yourAnswer, setYourAnswer] = useState<string | null>(null);
+    const [totalSolved, setTotalSolved] = useState<number>(0);
+    const [endSession, setEndSession] = useState<boolean>(false);
     const pathname = usePathname().split("/").pop();
     const {isOpen, onOpen, onClose} = useDisclosure();
     const {theme} = useTheme();
@@ -86,6 +48,7 @@ function Page() {
 
             );
             const data = res.data.map((quiz: Question, idx: number) => ({ ...quiz, idx, bgColor: "default" })) as Question[];
+            console.log(data);
             setQuiz(data);
             return data;
         },
@@ -135,6 +98,42 @@ function Page() {
         return null;
     } // This function is used to find the next question that is not completed
 
+    function result(){
+        let score = 0;
+
+        console.log(quiz);
+
+        const newQuiz = quiz.map((question) => {
+            const {answers, yourAnswer} = question;
+
+            if (yourAnswer === undefined) {
+                question.bgColor = "wrong";
+                return question;
+            }
+
+            let isCorrect = false;
+
+            Object.keys(answers).forEach((key) => {
+                if (answers[key] && yourAnswer === key) {
+                    isCorrect = true;
+                }
+            });
+
+            if (isCorrect) {
+                question.bgColor = "correct";
+                score++;
+            } else {
+                question.bgColor = "wrong";
+            }
+
+            return question;
+        });
+
+        setQuiz(newQuiz as Question[]);
+        setTotalSolved(score);
+    } // This function is used to calculate the score of the user
+
+
     if (!pathname || getIcon(pathname) == null || isError) {
         return <div>
             <h1>Page not found</h1>
@@ -145,7 +144,10 @@ function Page() {
         <div className={"w-full h-full flex items-center justify-center"}>
             <div className={"max-w-[1300px] w-full h-auto mt-32 relative mb-20"}>
                 <div className={"w-auto h-auto bg-fixed mb-8 left-0 top-4 flex gap-x-5 items-start justify-center"}>
-                    <Header pathname={pathname} theme={theme}/>
+                    <Header endQuiz={() => {
+                        setEndSession(true);
+                        result();
+                    }} totalSolved={totalSolved} pathname={pathname} theme={theme}/>
                 </div>
                 <div className={"w-full h-auto flex flex-wrap gap-3 "}>
                     {
@@ -154,6 +156,7 @@ function Page() {
                         </div> : quiz?.map((question, idx) => (
                             <QuizzerCard
                                 onClick={() => {
+                                    if (endSession) return;
                                     setCurrentQuiz(() => ({...question, idx: idx}));
                                     onOpen();
                                 }}
@@ -206,7 +209,7 @@ function Page() {
                                                                 color={"primary"}
                                                                 onClick={() => {
                                                                     setIsDot(idx);
-                                                                    setYourAnswer(currentQuiz.answers[key]);
+                                                                    setYourAnswer(key);
                                                                 }}
                                                                 variant={currentQuiz.isMarked === idx ? "dot" : isDot === idx ? "dot" : "flat"}
                                                             >
@@ -254,9 +257,9 @@ function Page() {
                                             quiz[currentQuiz?.idx as number].bgColor = "completed";
                                             quiz[currentQuiz?.idx as number].isMarked = isDot;
                                             quiz[currentQuiz?.idx as number].yourAnswer = yourAnswer || undefined;
-                                            setQuiz([...quiz]);
                                             setYourAnswer(null);
                                             setIsDot(undefined);
+                                            setTotalSolved((prev) => prev + 1);
                                             setCurrentQuiz((prev) => {
                                                 if (!prev) return undefined;
 
@@ -267,6 +270,7 @@ function Page() {
                                                 const notCompleted = findNotCompleted();
                                                 if (notCompleted) return notCompleted;
 
+                                                setQuiz([...quiz]);
                                                 onClose();
                                                 return undefined;
                                             });

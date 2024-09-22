@@ -61,7 +61,6 @@ export const QuizzerCard = ({
                     <figcaption
                         className="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white ">
                         <span className="text-sm sm:text-lg">{name}</span>
-
                     </figcaption>
                     {yourAnswer && <span className={"text-green-500 font-bold"}>{yourAnswer.length >= 25 ? yourAnswer.substring(0, 25) + "..." : yourAnswer}</span>}
                 </div>
