@@ -1,11 +1,23 @@
 "use client";
 
-import {Modal, ModalContent, ModalHeader, ModalFooter, Button, useDisclosure, Card, CardBody, Image, Link} from "@nextui-org/react";
+import {memo, useCallback} from "react";
+import {
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    Button,
+    useDisclosure,
+    Card,
+    CardBody,
+    Image,
+    Link
+} from "@nextui-org/react";
 import {getIcon} from "@/lib/iconUtils";
 import AnimatedCircularProgressBar from "@/components/ui/animated-circular-progress-bar";
 import {useRouter} from "next/navigation";
 
-export const Header = ({
+const Header = ({
     pathname,
     theme,
     totalSolved,
@@ -21,12 +33,19 @@ export const Header = ({
     const router = useRouter();
     const {isOpen, onOpen, onClose} = useDisclosure();
 
-    function calculatePercentage(part: number, total: number) {
+    // Use useCallback to memoize functions to avoid re-renders
+    const handleExit = useCallback(() => {
+        router.push("/");
+        onClose();
+    }, [router, onClose]);
+
+    const calculatePercentage = useCallback((part: number, total: number) => {
         if (total === 0) {
             return 0; // To avoid division by zero
         }
         return (part / total) * 100;
-    }
+    }, []);
+
 
     return (
         <>
@@ -36,11 +55,8 @@ export const Header = ({
                 shadow="sm"
             >
                 <CardBody className={"flex-row flex-wrap"}>
-                    <div
-                        className="flex flex-col items-start justify-center gap-4"
-                    >
-                        <div
-                            className="w-auto h-auto flex flex-col items-center justify-start">
+                    <div className="flex flex-col items-start justify-center gap-4">
+                        <div className="w-auto h-auto flex flex-col items-center justify-start">
                             <Image
                                 alt="Album cover"
                                 className="object-cover scale-90"
@@ -61,7 +77,7 @@ export const Header = ({
                     </div>
                     <div className="w-auto flex flex-col justify-between items-center">
                         <AnimatedCircularProgressBar
-                            max={totalProblems}
+                            max={100}
                             min={0}
                             value={calculatePercentage(totalSolved, totalProblems)}
                             gaugePrimaryColor="rgb(79 70 229)"
@@ -77,9 +93,10 @@ export const Header = ({
                             </Button>
                         </div>
                     </div>
-
                 </CardBody>
             </Card>
+
+            {/* Modal for exit confirmation */}
             <Modal
                 size={"lg"}
                 isOpen={isOpen}
@@ -90,16 +107,14 @@ export const Header = ({
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader className="flex flex-col gap-1">Are you sure you want to exit?</ModalHeader>
-
+                            <ModalHeader className="flex flex-col gap-1">
+                                Are you sure you want to exit?
+                            </ModalHeader>
                             <ModalFooter>
                                 <Button color="danger" variant="light" onPress={onClose}>
                                     Close
                                 </Button>
-                                <Button color="primary" onPress={() => {
-                                    router.push("/");
-                                    onClose();
-                                }}>
+                                <Button color="primary" onPress={handleExit}>
                                     Exit
                                 </Button>
                             </ModalFooter>
@@ -110,3 +125,14 @@ export const Header = ({
         </>
     );
 };
+
+// Use memo with a custom comparison to avoid unnecessary re-renders
+export default memo(Header, (prevProps, nextProps) => {
+    return (
+        prevProps.pathname === nextProps.pathname &&
+        prevProps.theme === nextProps.theme &&
+        prevProps.totalSolved === nextProps.totalSolved &&
+        prevProps.totalProblems === nextProps.totalProblems &&
+        prevProps.endQuiz === nextProps.endQuiz
+    );
+});

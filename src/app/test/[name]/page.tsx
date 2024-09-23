@@ -4,7 +4,7 @@ import {usePathname} from "next/navigation";
 import {getIcon} from "@/lib/iconUtils";
 import {useTheme} from "@/context/ThemeContext";
 import {QuizzerCard} from "@/components/Quiz/QuizzerCard";
-import {Header} from "@/components/Quiz/Header";
+import Header from "@/components/Quiz/Header";
 import {useQuery} from "@tanstack/react-query";
 import axios from "axios";
 import {useRouter} from "next/navigation";
@@ -27,6 +27,7 @@ function Page() {
     const [yourAnswer, setYourAnswer] = useState<string | null>(null);
     const [totalSolved, setTotalSolved] = useState<number>(0);
     const [endSession, setEndSession] = useState<boolean>(false);
+    const [totalProblems, setTotalProblems] = useState<number>(0)
     const pathname = usePathname().split("/").pop();
     const {isOpen, onOpen, onClose} = useDisclosure();
     const {theme} = useTheme();
@@ -45,6 +46,7 @@ function Page() {
             const res = await axios.get(`${url}/questions?apiKey=${apiKey}&tags=${pathname}&limit=15`);
             const data = res.data.map((quiz: Question, idx: number) => ({ ...quiz, idx, bgColor: "default" })) as Question[];
             setQuiz(data);
+            setTotalProblems(data.length);
             return data;
         },
         enabled: quiz.length === 0,
@@ -64,6 +66,7 @@ function Page() {
             setIsDot(undefined);
             setYourAnswer(null);
             setEndSession(false);
+            setTotalProblems(0);
         };
     }, []); // This effect is used to show a confirmation dialog when the user tries to leave the page
 
@@ -151,7 +154,7 @@ function Page() {
                         totalSolved={totalSolved}
                         pathname={pathname}
                         theme={theme}
-                        totalProblems={quiz.length}
+                        totalProblems={totalProblems}
                     />
                 </div>
                 <div className={"w-full h-auto flex flex-wrap gap-3 "}>
