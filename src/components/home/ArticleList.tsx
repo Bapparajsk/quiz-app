@@ -40,7 +40,6 @@ export const ArticleList = ({
                 setCardData(data);
             }
         }
-
     }, [type]);
 
     return (

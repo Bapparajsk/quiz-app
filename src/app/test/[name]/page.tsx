@@ -20,7 +20,6 @@ import {
 } from "@nextui-org/react";
 import {Question} from "@/app/test/[name]/text";
 
-
 function Page() {
     const [quiz, setQuiz] = useState<Question[]>([]);
     const [currentQuiz, setCurrentQuiz] = useState<Question | undefined>(undefined);
@@ -43,12 +42,8 @@ function Page() {
                 throw new Error("API URL or API Key is missing");
             }
 
-            const res = await axios.get(
-                `${url}/questions?apiKey=${apiKey}&tags=${pathname}&limit=15`,
-
-            );
+            const res = await axios.get(`${url}/questions?apiKey=${apiKey}&tags=${pathname}&limit=15`);
             const data = res.data.map((quiz: Question, idx: number) => ({ ...quiz, idx, bgColor: "default" })) as Question[];
-            console.log(data);
             setQuiz(data);
             return data;
         },
@@ -63,6 +58,12 @@ function Page() {
         return () => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
             window.removeEventListener('popstate', handleUnload);
+            setQuiz([]);
+            setCurrentQuiz(undefined);
+            setTotalSolved(0);
+            setIsDot(undefined);
+            setYourAnswer(null);
+            setEndSession(false);
         };
     }, []); // This effect is used to show a confirmation dialog when the user tries to leave the page
 
@@ -99,12 +100,10 @@ function Page() {
     } // This function is used to find the next question that is not completed
 
     function result(){
+        if (endSession) return;
         let score = 0;
-
-        console.log(quiz);
-
         const newQuiz = quiz.map((question) => {
-            const {answers, yourAnswer} = question;
+            const { correct_answers, yourAnswer } = question as Question;
 
             if (yourAnswer === undefined) {
                 question.bgColor = "wrong";
@@ -113,8 +112,8 @@ function Page() {
 
             let isCorrect = false;
 
-            Object.keys(answers).forEach((key) => {
-                if (answers[key] && yourAnswer === key) {
+            Object.keys(correct_answers).forEach((key) => {
+                if (correct_answers[key] === "true" && (yourAnswer + "_correct") === key) {
                     isCorrect = true;
                 }
             });
@@ -144,10 +143,16 @@ function Page() {
         <div className={"w-full h-full flex items-center justify-center"}>
             <div className={"max-w-[1300px] w-full h-auto mt-32 relative mb-20"}>
                 <div className={"w-auto h-auto bg-fixed mb-8 left-0 top-4 flex gap-x-5 items-start justify-center"}>
-                    <Header endQuiz={() => {
-                        setEndSession(true);
-                        result();
-                    }} totalSolved={totalSolved} pathname={pathname} theme={theme}/>
+                    <Header
+                        endQuiz={() => {
+                            setEndSession(true);
+                            result();
+                        }}
+                        totalSolved={totalSolved}
+                        pathname={pathname}
+                        theme={theme}
+                        totalProblems={quiz.length}
+                    />
                 </div>
                 <div className={"w-full h-auto flex flex-wrap gap-3 "}>
                     {

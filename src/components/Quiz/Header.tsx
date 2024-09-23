@@ -9,12 +9,14 @@ export const Header = ({
     pathname,
     theme,
     totalSolved,
-    endQuiz
+    endQuiz,
+    totalProblems,
 }: {
     pathname: string;
     theme: string;
     totalSolved: number;
     endQuiz: () => void;
+    totalProblems: number;
 }) => {
     const router = useRouter();
     const {isOpen, onOpen, onClose} = useDisclosure();
@@ -59,12 +61,12 @@ export const Header = ({
                     </div>
                     <div className="w-auto flex flex-col justify-between items-center">
                         <AnimatedCircularProgressBar
-                            max={100}
+                            max={totalProblems}
                             min={0}
-                            value={calculatePercentage(totalSolved, 15)}
+                            value={calculatePercentage(totalSolved, totalProblems)}
                             gaugePrimaryColor="rgb(79 70 229)"
                             gaugeSecondaryColor={theme === "dark" ? "#1f2937" : "#f3f4f6"}
-                            valueText={`${totalSolved}/15`}
+                            valueText={`${totalSolved}/${totalProblems}`}
                         />
                         <div className={"flex gap-x-3"}>
                             <Button color={"danger"} variant={"flat"} onPress={onOpen}>

@@ -9,6 +9,7 @@ export interface CorrectAnswers {
     answer_d_correct: string;
     answer_e_correct: string;
     answer_f_correct: string;
+    [key: string]: string;
 }
 
 export interface Answers {
